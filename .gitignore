@@ -3,3 +3,8 @@
 
 # Example code in package build process
 *-Ex.R
+
+# Ignore object/shared object files:
+*.o
+*.so
+
