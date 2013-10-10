@@ -1,5 +1,6 @@
 
-setwd("~/Dropbox/GitHub/kepler/myscripts")
+#setwd("~/Dropbox/GitHub/kepler/myscripts")
+
 # Start anew:
 rm(list=ls())
 

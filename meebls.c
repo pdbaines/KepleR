@@ -19,44 +19,44 @@ R_meebls(SEXP R_NPTS,
     SEXP R_nP, 
     SEXP R_Pmin, 
     SEXP R_Pmax, 
-	SEXP R_qmi_fix, 
+    SEXP R_qmi_fix, 
     SEXP R_qma_fix, 
     SEXP R_nb_fix, 
     SEXP R_fix_qrange,
-	SEXP R_t_vec, 
+    SEXP R_t_vec, 
     SEXP R_y_vec, 
     SEXP R_Power_BLS, 
-	SEXP R_Period_BLS, 
+    SEXP R_Period_BLS, 
     SEXP R_Depth_BLS, 
     SEXP R_InCare_BLS,
-	SEXP R_PowerBright_BLS, 
+    SEXP R_PowerBright_BLS, 
     SEXP R_PeriodBright_BLS, 
-	SEXP R_DepthBright_BLS, 
+    SEXP R_DepthBright_BLS, 
     SEXP R_InCareBright_BLS,
     SEXP R_nbmax,
-	SEXP R_want_print);
+    SEXP R_want_print);
 
 void 
 meebls(int NPTS, 
     double nP, 
     double Pmin, 
     double Pmax, 
-	double qmi_fix, 
+    double qmi_fix, 
     double qma_fix, 
     int nb_fix, 
     int fix_qrange, 
-	double * t_vec, 
+    double * t_vec, 
     double * y_vec, 
     double * Power_BLS, 
-	double * Period_BLS, 
+    double * Period_BLS, 
     double * Depth_BLS, 
     double * InCare_BLS,
-	double * PowerBright_BLS, 
+    double * PowerBright_BLS, 
     double * PeriodBright_BLS, 
-	double * DepthBright_BLS, 
+    double * DepthBright_BLS, 
     double * InCareBright_BLS,
     int nbmax,
-	int want_print);
+    int want_print);
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -65,22 +65,22 @@ R_meebls(SEXP R_NPTS,
     SEXP R_nP, 
     SEXP R_Pmin, 
     SEXP R_Pmax, 
-	SEXP R_qmi_fix, 
+    SEXP R_qmi_fix, 
     SEXP R_qma_fix, 
     SEXP R_nb_fix, 
     SEXP R_fix_qrange,
-	SEXP R_t_vec, 
+    SEXP R_t_vec, 
     SEXP R_y_vec, 
     SEXP R_Power_BLS, 
-	SEXP R_Period_BLS, 
+    SEXP R_Period_BLS, 
     SEXP R_Depth_BLS, 
     SEXP R_InCare_BLS,
-	SEXP R_PowerBright_BLS, 
+    SEXP R_PowerBright_BLS, 
     SEXP R_PeriodBright_BLS, 
-	SEXP R_DepthBright_BLS, 
+    SEXP R_DepthBright_BLS, 
     SEXP R_InCareBright_BLS,
     SEXP R_nbmax,
-	SEXP R_want_print)
+    SEXP R_want_print)
 {
 	int NPTS = INTEGER(R_NPTS)[0];
 	double nP = REAL(R_nP)[0];
@@ -100,7 +100,7 @@ R_meebls(SEXP R_NPTS,
 	double * PeriodBright_BLS = REAL(R_PeriodBright_BLS);
 	double * DepthBright_BLS = REAL(R_DepthBright_BLS);
 	double * InCareBright_BLS = REAL(R_InCareBright_BLS);
-    int nbmax = INTEGER(R_nbmax)[0];
+	int nbmax = INTEGER(R_nbmax)[0];
 	int want_print = INTEGER(R_want_print)[0];
 
 	Rprintf("Inside 'R_meebls'...\n");
@@ -128,22 +128,22 @@ meebls(int NPTS,
     double nP, 
     double Pmin, 
     double Pmax, 
-	double qmi_fix, 
+    double qmi_fix, 
     double qma_fix, 
     int nb_fix, 
     int fix_qrange, 
-	double * t_vec, 
+    double * t_vec, 
     double * y_vec, 
     double * Power_BLS, 
-	double * Period_BLS, 
+    double * Period_BLS, 
     double * Depth_BLS, 
     double * InCare_BLS,
-	double * PowerBright_BLS, 
+    double * PowerBright_BLS, 
     double * PeriodBright_BLS, 
-	double * DepthBright_BLS, 
+    double * DepthBright_BLS, 
     double * InCareBright_BLS,
     int nbmax,
-	int want_print)
+    int want_print)
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,7 +182,7 @@ meebls(int NPTS,
 	double qma,qmi;
 	int good = 1;
 	int minbin = 5;
-	int nb;
+	int i,j, nb;
 
 	// Fixed transit fraction ranges?
 	if (fix_qrange){
@@ -223,7 +223,7 @@ meebls(int NPTS,
 	double t1 = t_vec[0];
 	
     // UU_BLS = (t_vec - t1) # i.e., zero-origin time vector
-    for (int i=0; i<NPTS; i++){
+    for (i=0; i<NPTS; i++){
      	UU_BLS[i] = t_vec[i]-t1;
 	    s += y_vec[i];
 	}
@@ -232,7 +232,7 @@ meebls(int NPTS,
 	s = s/rn;
 
     // VV_BLS = y_vec - mean(y_vec) # i.e., zero-mean observation vector
-	for (int i=0; i<NPTS; i++){
+	for (i=0; i<NPTS; i++){
 		VV_BLS[i] = y_vec[i]-s;
 	}
 
@@ -320,21 +320,21 @@ meebls(int NPTS,
         // Set y and ibi to zero 
         // These are the number and sum of points in each bin 
         // (Note: used to be 1-->nb, switched to 0-->nb-1):
-		for (int j=0; j<nb; j++){
+		for (j=0; j<nb; j++){
 			y[j] = 0;
 			ibi[j] = 0;
 		}
 		
         // Compute phase:
         // Recall UU_BLS = zero-origin tie, VV_BLS = zero-mean version of y_vec
-		for (int i=0; i<NPTS; i++){
+		for (i=0; i<NPTS; i++){
             // ph = fractional part of (t[i]/P_0)
             // i.e., how far into the period t[i] falls 
 			ph     = UU_BLS[i]*f0;
 			ph     = ph - (int)ph;
             // j = bin membership of data point i
             // j = (number of bins * fractional part of (t[i]/P_0))
-			int j  = (int)(nb*ph);
+			j  = (int)(nb*ph);
             // Number of points in bin j:
 			ibi[j] += 1;
             // Sum of points in bin j:
@@ -342,14 +342,14 @@ meebls(int NPTS,
 		}
 
         // Check number of bins is correct:
-        if (j != nb){
-            Rprintf("j=%d, nb=%d\n",j,nb);
-            error("'j' and 'nb' do not match after loop");
-        }
+        //if (j != nb){
+        //    Rprintf("j=%d, nb=%d\n",j,nb);
+        //    error("'j' and 'nb' do not match after loop");
+        //}
 
 		// Extend the arrays ibi() and  y() beyond  nb  by  wrapping
         // Recall: nb1 = number of bins + 1
-		for (int j=nb; j<nbkma; j++){
+		for (j=nb; j<nbkma; j++){
             //   j loop: nb,nb+1,...,nb+kma-1 
             // jnb loop: 0,1,2,...,kma-1 (i.e., maximum number of bins for a transit - 1)
 			jnb = j-nb;
@@ -373,7 +373,7 @@ meebls(int NPTS,
         // TODO: Change to zero indexing
 
         // Loop over number of bins:
-		for (int i=1; i<=nb; i++){//for i from 1 to nbins
+		for (i=1; i<=nb; i++){//for i from 1 to nbins
 			s     = 0;
 			k     = 0;
 			kk    = 0;
@@ -382,7 +382,7 @@ meebls(int NPTS,
 			//printf("nb2: %lf/%d\n",nb2,nb);
 			//	nb2=nb;
 			//}
-			for (int j=i; j<=nb2; j++){
+			for (j=i; j<=nb2; j++){
 				k     = k+1;
 				kk    = kk+ibi[j];
 				s     = s+y[j];
