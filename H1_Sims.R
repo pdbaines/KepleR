@@ -1,7 +1,4 @@
-
-
 # Simple-Kepler Code
-
 "compute_q" <- function(t,parameters)
 {
 	# Everything out of transit is zero
@@ -389,78 +386,78 @@ t_d_prop_sd <- 4
 alpha_prop_sd <- 0.01
 debug <- TRUE
 ###################
-
-"bls" <- function(t,y,nf,fmin,df,nb,qmi,qma)
-{
-
-# c     Input parameters:
-# c     ~~~~~~~~~~~~~~~~~
-# c
-# c     n    = number of data points
-# c     t    = array {t(i)}, containing the time values of the time series
-# c     x    = array {x(i)}, containing the data values of the time series
-# c     u    = temporal/work/dummy array, must be dimensioned in the 
-# c            calling program in the same way as  {t(i)}
-# c     v    = the same as  {u(i)}
-# c     nf   = number of frequency points in which the spectrum is computed
-# c     fmin = minimum frequency (MUST be > 0)
-# c     df   = frequency step
-# c     nb   = number of bins in the folded time series at any test period       
-# c     qmi  = minimum fractional transit length to be tested
-# c     qma  = maximum fractional transit length to be tested
-# c
-# c     Output parameters:
-# c     ~~~~~~~~~~~~~~~~~~
-# c
-# c     p    = array {p(i)}, containing the values of the BLS spectrum
-# c            at the i-th frequency value -- the frequency values are 
-# c            computed as  f = fmin + (i-1)*df
-# c     bper = period at the highest peak in the frequency spectrum
-# c     bpow = value of {p(i)} at the highest peak
-# c     depth= depth of the transit at   *bper*
-# c     qtran= fractional transit length  [ T_transit/bper ]
-# c     in1  = bin index at the start of the transit [ 0 < in1 < nb+1 ]
-# c     in2  = bin index at the end   of the transit [ 0 < in2 < nb+1 ]
-
-	n <- as.integer(length(y))
-	if (length(t)!=n){
-		stop("'t' and 'y' must have the same length")
-	}
-	mzy <- y - mean(y)
-	# Workspace:
-	u <- vector("double",n)
-	v <- vector("double",n)
-	# Outputs:
-	p <- vector("double",nf)
-	bper <- bpow <- depth <- qtran <- 0.0
-	storage.mode(bper) <- storage.mode(bpow) <- storage.mode(depth) <- storage.mode(qtran) <- "double"
-	in1 <- in2 <- 0
-	storage.mode(in1) <- storage.mode(in2) <- "integer"
-	.Fortran("eebls",
-		as.integer(n),
-		as.numeric(t),
-		as.numeric(mzy),
-		as.numeric(u),
-		as.numeric(v),
-		as.integer(nf),
-		as.numeric(fmin),
-		as.numeric(df),
-		as.integer(nb),
-		as.numeric(qmi),
-		as.numeric(qma),
-		as.numeric(p),
-		as.numeric(bper),
-		as.numeric(bpow),
-		as.numeric(depth),
-		as.numeric(qtran),
-		as.integer(in1),
-		as.integer(in2))
-
-	ret <- list(p,bper,bpow,depth,qtran,in1,in2)
-	
-	return(ret)
-}
-
+# 
+# "bls" <- function(t,y,nf,fmin,df,nb,qmi,qma)
+# {
+# 
+# # c     Input parameters:
+# # c     ~~~~~~~~~~~~~~~~~
+# # c
+# # c     n    = number of data points
+# # c     t    = array {t(i)}, containing the time values of the time series
+# # c     x    = array {x(i)}, containing the data values of the time series
+# # c     u    = temporal/work/dummy array, must be dimensioned in the 
+# # c            calling program in the same way as  {t(i)}
+# # c     v    = the same as  {u(i)}
+# # c     nf   = number of frequency points in which the spectrum is computed
+# # c     fmin = minimum frequency (MUST be > 0)
+# # c     df   = frequency step
+# # c     nb   = number of bins in the folded time series at any test period       
+# # c     qmi  = minimum fractional transit length to be tested
+# # c     qma  = maximum fractional transit length to be tested
+# # c
+# # c     Output parameters:
+# # c     ~~~~~~~~~~~~~~~~~~
+# # c
+# # c     p    = array {p(i)}, containing the values of the BLS spectrum
+# # c            at the i-th frequency value -- the frequency values are 
+# # c            computed as  f = fmin + (i-1)*df
+# # c     bper = period at the highest peak in the frequency spectrum
+# # c     bpow = value of {p(i)} at the highest peak
+# # c     depth= depth of the transit at   *bper*
+# # c     qtran= fractional transit length  [ T_transit/bper ]
+# # c     in1  = bin index at the start of the transit [ 0 < in1 < nb+1 ]
+# # c     in2  = bin index at the end   of the transit [ 0 < in2 < nb+1 ]
+# 
+# 	n <- as.integer(length(y))
+# 	if (length(t)!=n){
+# 		stop("'t' and 'y' must have the same length")
+# 	}
+# 	mzy <- y - mean(y)
+# 	# Workspace:
+# 	u <- vector("double",n)
+# 	v <- vector("double",n)
+# 	# Outputs:
+# 	p <- vector("double",nf)
+# 	bper <- bpow <- depth <- qtran <- 0.0
+# 	storage.mode(bper) <- storage.mode(bpow) <- storage.mode(depth) <- storage.mode(qtran) <- "double"
+# 	in1 <- in2 <- 0
+# 	storage.mode(in1) <- storage.mode(in2) <- "integer"
+# 	.Fortran("eebls",
+# 		as.integer(n),
+# 		as.numeric(t),
+# 		as.numeric(mzy),
+# 		as.numeric(u),
+# 		as.numeric(v),
+# 		as.integer(nf),
+# 		as.numeric(fmin),
+# 		as.numeric(df),
+# 		as.integer(nb),
+# 		as.numeric(qmi),
+# 		as.numeric(qma),
+# 		as.numeric(p),
+# 		as.numeric(bper),
+# 		as.numeric(bpow),
+# 		as.numeric(depth),
+# 		as.numeric(qtran),
+# 		as.integer(in1),
+# 		as.integer(in2))
+# 
+# 	ret <- list(p,bper,bpow,depth,qtran,in1,in2)
+# 	
+# 	return(ret)
+# }
+#####
 min_period = exp(a_logP)
 max_period = exp(b_logP)
 freq_step = 1.1/n  #0.0001
@@ -475,8 +472,12 @@ qma = b_alpha
 fmin = 1.0/n # (max_period*1.1)
 
 # Load BLS:
-#dyn.load("eebls.so")
-#out_bls <- bls(t=c(1:n),y=y$data$y,nf=nf,fmin=fmin,df=df,nb=nb,qmi=qmi,qma=qma)
+# dyn.load("eebls.so")
+
+source("meebls.R")
+out_bls <- MEEBLS(y=y$data$y,t=c(1:n),nP=10000,Pmin=exp(a_logP),Pmax=exp(b_logP), qmi=a_alpha,qma=b_alpha,fix_qrange=TRUE,nb=nb,nbmax=2000,verbose=FALSE)
+# out_bls <- bls(t=c(1:n),y=y$data$y,nf=nf,fmin=fmin,df=df,nb=nb,qmi=qmi,qma=qma)
+stop("Done with the Boxed Least Squares.")
 #bail ## 
 
 library(coda)
@@ -579,5 +580,3 @@ par(mfrow=c(3,1))
 plot(y=y$data$y,x=(c(1:n)%%y$parameters$P))
 plot(y=eebls_croll$Power_BLS,x=eebls_croll$Period_BLS) ; abline(v=y$parameters$P,col="blue",lwd=2.0)
 plot(y=eebls_croll$Depth_BLS,x=eebls_croll$Period_BLS) ; abline(v=y$parameters$P,col="blue",lwd=2.0)
-
-
