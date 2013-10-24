@@ -1,4 +1,4 @@
-
+setwd("/home/aden/Dropbox/Misc/School/KepleR")
 #setwd("~/Dropbox/GitHub/kepler/myscripts")
 
 # Start anew:
@@ -31,7 +31,7 @@ nu_0 <- 1000.0
 ss_0 <- 0.0001
 
 # Random seed:
-seed <- 5029879#2101323
+seed <- 5029879 #2101323
 
 hyperparameter_list <- 
 	list(a_alpha=a_alpha,
@@ -96,26 +96,41 @@ fmin = 1.0/n # (max_period*1.1)
 source("meebls.R")
 
 cat("Calling MEEBLS...\n")
-bls_out <- MEEBLS(y=y$data$y,t=c(1:n),nP=10000,Pmin=exp(a_logP),Pmax=exp(b_logP),
-                  qmi=a_alpha,qma=b_alpha,fix_qrange=TRUE,nb=1000,nbmax=2000,verbose=TRUE)
+bls_out <- MEEBLS(y=y$data$y,t=c(1:n),nP=10000, Pmin, Pmax, qmi, qma, fix_qrange=TRUE, nb, nbmax=20000, verbose=TRUE)
 cat("done.\n")
 
+###################
+### Email Specs ####
+nP = 5000 #From the email--number of period points
+Pmin=18000 #Upped the minimum period to get closer to the true period
+Pmax=20000 #True period: 19k
+
+df = (fmax - fmin)/nf #From the email
+nb = 1500 
+qmi = 0.0005
+qma = 0.005
+source("EEBLS.R") #Let's try the Croll C++ code.
+###################
+
+
+cat("Calling EEBLS_Modified...\n")
+bls_out <- EEBLS_Croll(y=y$data$y,t=c(1:n),nP, 
+                       Pmin, Pmax, qmi, qma, nb, fix_qrange=TRUE, verbose=TRUE)
+cat("done.\n")
+
+BLS_min = which.min(bls_out$Power_BLS) #Which observation had the lowest residue?
+Period_min = bls_out$Period_BLS[BLS_min] #Which period corresponds to the smallest residue?
+
 par(mfrow=c(3,1))
-plot(y=y$data$y,x=(c(1:n)%%y$parameters$P))
-plot(y=bls_out$Power_BLS,x=bls_out$Period_BLS) ; abline(v=y$parameters$P,col="blue",lwd=2.0)
-plot(y=bls_out$Depth_BLS,x=bls_out$Period_BLS) ; abline(v=y$parameters$P,col="blue",lwd=2.0)
+plot(y=y$data$y,x=(c(1:n)), ylab='y', xlab='Iteration', type='l')
+plot(y=bls_out$Power_BLS,x=bls_out$Period_BLS, type='l', ylab='Signal Residue', xlab='Period') ; abline(v=y$parameters$P,col="blue",lwd=1.0); abline(v=Period_min,col="red",lwd=1.0);
+plot(y=bls_out$Depth_BLS,x=bls_out$Period_BLS, type='l', ylab='Transit Depth', xlab='Period') ; abline(v=y$parameters$P,col="blue",lwd=1.0); abline(v=Period_min,col="red",lwd=1.0);
 
-bail
 
-# Load BLS:
-#dyn.load("meebls.so")
-#out_bls <- bls(t=c(1:n),y=y$data$y,nf=nf,fmin=fmin,df=df,nb=nb,qmi=qmi,qma=qma)
-#bail ## 
+stop("Finished the EEBLS routine.")
 
 library(coda)
-
 do_mcmc <- FALSE
-
 if (do_mcmc){
 
 mcmc_time <- system.time({
