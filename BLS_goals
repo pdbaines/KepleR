@@ -1,0 +1,5 @@
+Simulate datasets through R, export to Python
+Get Python BLS working
+Tuning parameters is okay
+(dfm) Look on github exosamsi/detrending/sandbox/Readme -- Dan's injected light curves
+Easier: Gal's detrended using median filter

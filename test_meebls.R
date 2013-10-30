@@ -115,11 +115,14 @@ source("EEBLS.R") #Let's try the Croll C++ code.
 
 cat("Calling EEBLS_Modified...\n")
 bls_out <- EEBLS_Croll(y=y$data$y,t=c(1:n),nP, 
-                       Pmin, Pmax, qmi, qma, nb, fix_qrange=TRUE, verbose=TRUE)
+                       Pmin=19000, Pmax=19100, qmi, qma, nb, fix_qrange=TRUE, verbose=TRUE)
 cat("done.\n")
 
 BLS_min = which.min(bls_out$Power_BLS) #Which observation had the lowest residue?
 Period_min = bls_out$Period_BLS[BLS_min] #Which period corresponds to the smallest residue?
+
+BLS_true = bls_out$Power_BLS[which(round(bls_out$Period_BLS, 2) == 19093.00)]
+BLS_min_val = bls_out$Power_BLS[BLS_min]
 
 par(mfrow=c(3,1))
 plot(y=y$data$y,x=(c(1:n)), ylab='y', xlab='Iteration', type='l')
