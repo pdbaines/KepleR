@@ -1,4 +1,4 @@
-setwd("/home/aden/Dropbox/Misc/School/KepleR")
+#setwd("/home/aden/Dropbox/Misc/School/KepleR")
 #setwd("~/Dropbox/GitHub/kepler/myscripts")
 
 # Start anew:
