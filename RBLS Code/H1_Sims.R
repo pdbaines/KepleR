@@ -386,78 +386,7 @@ t_d_prop_sd <- 4
 alpha_prop_sd <- 0.01
 debug <- TRUE
 ###################
-# 
-# "bls" <- function(t,y,nf,fmin,df,nb,qmi,qma)
-# {
-# 
-# # c     Input parameters:
-# # c     ~~~~~~~~~~~~~~~~~
-# # c
-# # c     n    = number of data points
-# # c     t    = array {t(i)}, containing the time values of the time series
-# # c     x    = array {x(i)}, containing the data values of the time series
-# # c     u    = temporal/work/dummy array, must be dimensioned in the 
-# # c            calling program in the same way as  {t(i)}
-# # c     v    = the same as  {u(i)}
-# # c     nf   = number of frequency points in which the spectrum is computed
-# # c     fmin = minimum frequency (MUST be > 0)
-# # c     df   = frequency step
-# # c     nb   = number of bins in the folded time series at any test period       
-# # c     qmi  = minimum fractional transit length to be tested
-# # c     qma  = maximum fractional transit length to be tested
-# # c
-# # c     Output parameters:
-# # c     ~~~~~~~~~~~~~~~~~~
-# # c
-# # c     p    = array {p(i)}, containing the values of the BLS spectrum
-# # c            at the i-th frequency value -- the frequency values are 
-# # c            computed as  f = fmin + (i-1)*df
-# # c     bper = period at the highest peak in the frequency spectrum
-# # c     bpow = value of {p(i)} at the highest peak
-# # c     depth= depth of the transit at   *bper*
-# # c     qtran= fractional transit length  [ T_transit/bper ]
-# # c     in1  = bin index at the start of the transit [ 0 < in1 < nb+1 ]
-# # c     in2  = bin index at the end   of the transit [ 0 < in2 < nb+1 ]
-# 
-# 	n <- as.integer(length(y))
-# 	if (length(t)!=n){
-# 		stop("'t' and 'y' must have the same length")
-# 	}
-# 	mzy <- y - mean(y)
-# 	# Workspace:
-# 	u <- vector("double",n)
-# 	v <- vector("double",n)
-# 	# Outputs:
-# 	p <- vector("double",nf)
-# 	bper <- bpow <- depth <- qtran <- 0.0
-# 	storage.mode(bper) <- storage.mode(bpow) <- storage.mode(depth) <- storage.mode(qtran) <- "double"
-# 	in1 <- in2 <- 0
-# 	storage.mode(in1) <- storage.mode(in2) <- "integer"
-# 	.Fortran("eebls",
-# 		as.integer(n),
-# 		as.numeric(t),
-# 		as.numeric(mzy),
-# 		as.numeric(u),
-# 		as.numeric(v),
-# 		as.integer(nf),
-# 		as.numeric(fmin),
-# 		as.numeric(df),
-# 		as.integer(nb),
-# 		as.numeric(qmi),
-# 		as.numeric(qma),
-# 		as.numeric(p),
-# 		as.numeric(bper),
-# 		as.numeric(bpow),
-# 		as.numeric(depth),
-# 		as.numeric(qtran),
-# 		as.integer(in1),
-# 		as.integer(in2))
-# 
-# 	ret <- list(p,bper,bpow,depth,qtran,in1,in2)
-# 	
-# 	return(ret)
-# }
-#####
+
 min_period = exp(a_logP)
 max_period = exp(b_logP)
 freq_step = 1.1/n  #0.0001
@@ -476,7 +405,7 @@ fmin = 1.0/n # (max_period*1.1)
 
 source("meebls.R")
 out_bls <- MEEBLS(y=y$data$y,t=c(1:n),nP=10000,Pmin=exp(a_logP),Pmax=exp(b_logP), qmi=a_alpha,qma=b_alpha,fix_qrange=TRUE,nb=nb,nbmax=2000,verbose=FALSE)
-# out_bls <- bls(t=c(1:n),y=y$data$y,nf=nf,fmin=fmin,df=df,nb=nb,qmi=qmi,qma=qma)
+
 stop("Done with the Boxed Least Squares.")
 #bail ## 
 
@@ -485,98 +414,31 @@ library(coda)
 do_mcmc <- FALSE
 
 if (do_mcmc){
-
-mcmc_time <- system.time({
-	ret <- kepler_fit(y=y$data$y,
-		nsamples=nsamples,
-		burnin=burnin,
-		hyperparameters=hyperparameter_list,
-		rho_prop_sd=rho_prop_sd,
-		alpha_prop_sd=alpha_prop_sd,
-		t_0_prop_sd=t_0_prop_sd,
-		t_d_prop_sd=t_d_prop_sd,
-		P_prop_sd=P_prop_sd,
-		print_every=print_every,
-		tune_every=tune_every,
-		debug=debug)
-})
-cat(paste0("MCMC time (n=",n,"): ",round(mcmc_time["elapsed"],3)," seconds\n"))
-
-if (debug){
-	plot(ret$draws[,c("rho","sigma2")])
-	print(summary(ret$draws))
-} else {
-	plot(ret[,c("rho","sigma2")])
-	print(summary(ret))
-}
-
+  mcmc_time <- system.time({
+  	ret <- kepler_fit(y=y$data$y,
+  		nsamples=nsamples,
+  		burnin=burnin,
+  		hyperparameters=hyperparameter_list,
+  		rho_prop_sd=rho_prop_sd,
+  		alpha_prop_sd=alpha_prop_sd,
+  		t_0_prop_sd=t_0_prop_sd,
+  		t_d_prop_sd=t_d_prop_sd,
+  		P_prop_sd=P_prop_sd,
+  		print_every=print_every,
+  		tune_every=tune_every,
+  		debug=debug)
+  })
+  cat(paste0("MCMC time (n=",n,"): ",round(mcmc_time["elapsed"],3)," seconds\n"))
+  
+  if (debug){
+  	plot(ret$draws[,c("rho","sigma2")])
+  	print(summary(ret$draws))
+  } else {
+  	plot(ret[,c("rho","sigma2")])
+  	print(summary(ret))
+  }
 } # END if (do_mcmc){...}
 
 cat("Truth:\n")
 print(unlist(y$parameters))
 
-#plot(ret)
-
-# Pseudo-BLS:
-# -- Fold time series at each candidate period
-# -- Fit step function to folded series
-# -- For each (i1,i2)
-# -- Compute mean(folded_y[i1:i2])
-# -- Compute var(folded_y[i1:i2])
-# -- Minimum variance for which (min_transit_depth < mean < max_transit_depth) is top candidate
-# -- Repeat for all periods, i1, i2
-# -- Rank candidates by variances
-
-"pbls" <- function(y,
-	P_lo,P_hi,P_inc,
-	a_alpha,b_alpha,
-	a_t_d,b_t_d
-	)
-{
-	y <- y-mean(y)
-	P_candidates <- seq(P_lo,P_hi,by=P_inc)
-	ret <- matrix(NA,nrow=length(P_candidates),ncol=5)
-	colnames(ret) <- c("P","t_0","t_d","alpha","var")
-	ret[,1] <- P_candidates
-	for (i in 1:length(P_candidates)){
-		# Do stuff...
-		P <- P_candidates[i]
-		max_i1 <- as.integer(P-a_t_d)
-		min_tvar <- Inf
-		for (i1 in 1:max_i1){
-			min_i2 <- i1+a_t_d
-			max_i2 <- min(i1+b_t_d,n)
-			for (i2 in min_i2:max_i2){
-				# Do stuff.. ################# NO FOLDING!!!!! #############
-				tbar <- mean(y[i1:i2])
-				tvar <- var(y[i1:i2])
-				if (tbar<a_alpha || tbar>b_alpha){
-					# carry on
-				} else if (tvar < min_tvar){
-					ret[i,2:5] <- c(i1,(i2-i1),tbar,tvar)
-				}
-			}
-		}
-		cat(paste0("Finished P = ",P,"...\n"))
-	}
-	return(ret)
-}
-
-#crude_pbls <- pbls(y=y$data$y,
-#	P_lo=exp(a_logP),P_hi=exp(b_logP),P_inc=6000,
-#	P_lo=as.integer(y$parameters$P),P_hi=as.integer(y$parameters$P)+1,P_inc=1,
-#	a_alpha=a_alpha,b_alpha=b_alpha,
-#	a_t_d=a_t_d,b_t_d=b_t_d)
-
-
-source("EEBLS.R")
-
-cat("Calling EEBLS Croll...\n")
-eebls_croll <- EEBLS_Croll(y=y$data$y,t=c(1:n),nP=10000,Pmin=exp(a_logP),Pmax=exp(b_logP),
-	qmi=a_alpha,qma=b_alpha,fix_qrange=TRUE,nb=1000,verbose=TRUE)
-cat("done.\n")
-
-par(mfrow=c(3,1))
-plot(y=y$data$y,x=(c(1:n)%%y$parameters$P))
-plot(y=eebls_croll$Power_BLS,x=eebls_croll$Period_BLS) ; abline(v=y$parameters$P,col="blue",lwd=2.0)
-plot(y=eebls_croll$Depth_BLS,x=eebls_croll$Period_BLS) ; abline(v=y$parameters$P,col="blue",lwd=2.0)

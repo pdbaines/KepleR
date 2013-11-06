@@ -1,4 +1,4 @@
-# History files
+# History files and Pycharm settings
 .Rhistory
 .idea
 
@@ -11,4 +11,3 @@
 *.pyc
 
 build/
-
