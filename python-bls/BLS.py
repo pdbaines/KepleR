@@ -1,5 +1,6 @@
 import bls, math, glob
 import numpy as np
+import csv
 
 def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.log(20000),
             nb=1500, qmi=0.0005, qma=0.005, verbose=True):
@@ -56,6 +57,15 @@ def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.l
 
 #Get file list, take only simulated observation CSVs
 data_files = glob.glob("../Data/y_*.csv")
+outfilestub = "../Results/out_"
 
 for data in data_files:
-    run_bls(file=data, verbose=True)
+    foo = run_bls(file=data, verbose=True)
+    datanum = data.split('_')[1].split('.')[0]
+    outfile = outfilestub + datanum + ".txt"
+    ofile = open(outfile,"wb")
+    ofile.write(str(foo[1]))
+    ofile.close()
+
+
+
