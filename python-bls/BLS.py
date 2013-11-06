@@ -1,29 +1,20 @@
-import bls
+import bls, math, glob
 import numpy as np
-import math
 
-def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.log(20000), nb=1500, qmi=0.0005, qma=0.005, verbose=True):
+def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.log(20000),
+            nb=1500, qmi=0.0005, qma=0.005, verbose=True):
     if verbose:
         print "Reading data..."
 
-    data = np.genfromtxt(file, delimiter=",", skiprows=1)
+    flux = np.genfromtxt(file, delimiter=",")
+
     if verbose:
         print "Setting up arrays..."
 
-    flux = np.empty(data.shape[0])
-    flux[:] = (data[:,1]).copy()
     time = range(len(flux))
     n = len(flux)
     u = np.empty(n)
     v = np.empty(n)
-
-    if verbose:
-        print "Forcing contiguity..."
-
-    flux = np.ascontiguousarray(flux, dtype=np.float64)
-    time = np.ascontiguousarray(time, dtype=np.float64)
-    u = np.ascontiguousarray(u, dtype=np.float64)
-    v = np.ascontiguousarray(v, dtype=np.float64)
 
     if verbose:
         print "Setting up BLS specs..."
@@ -55,7 +46,6 @@ def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.l
         print "qma=" + str(qma)
         print "Running EEBLS..."
 
-
     results = bls.eebls(time, flux, u, v, nf, fmin, df, nb, qmi, qma)
 
     if verbose:
@@ -64,4 +54,8 @@ def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.l
 
     return results
 
-run_bls()
+#Get file list, take only simulated observation CSVs
+data_files = glob.glob("../Data/y_*.csv")
+
+for data in data_files:
+    run_bls(file=data, verbose=True)

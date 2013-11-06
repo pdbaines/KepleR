@@ -1,6 +1,5 @@
 # Simple-Kepler Code
-"compute_q" <- function(t,parameters)
-{
+"compute_q" <- function(t,parameters) {
   # Everything out of transit is zero
   ret <- rep(0.0,length(t))
   # Compute time mod period:
@@ -34,9 +33,7 @@
   return(Y)
 }
 
-# PROBLEM :: Mean is one not zero!! #TODO
-"dar1" <- function(y,rho,sigma2,log=FALSE)
-{
+"dar1" <- function(y,rho,sigma2,log=FALSE) { # PROBLEM :: Mean is one not zero!! #TODO
   # Compute density of AR(1) process in uber-slow style:
   n <- length(y)
   sigma <- sqrt(sigma2)
@@ -55,7 +52,7 @@
 
 "sim_from_prior" <- function(nsims=1,hyperparameters=list(a_alpha=0,b_alpha=1,
                                                           a_logP=8000,b_logP=37000,a_t_d=15,b_t_d=30,
-                                                          a_rho=0.0,b_rho=1.0,nu_0=1.0,ss_0=1.0)){
+                                                          a_rho=0.0,b_rho=1.0,nu_0=1.0,ss_0=1.0)) {
   alpha <- runif(n=nsims,min=hyperparameters$a_alpha,max=hyperparameters$b_alpha)
   P <- exp(runif(n=nsims,min=hyperparameters$a_logP,max=hyperparameters$b_logP))
   t_d <- runif(n=nsims,min=hyperparameters$a_t_d,max=hyperparameters$b_t_d)
@@ -79,7 +76,6 @@
   y <- (1-q_vec) + z
   return(list("y"=y,"z"=z,"q"=q_vec))
 }
-
 
 "full_sim" <- function(n,hyperparameters){
   parameters <- sim_from_prior(nsims=1,hyperparameters=hyperparameters)
@@ -113,27 +109,31 @@ ss_0 <- 0.0001
 # Random seed:
 seed <- 5029879
 
-# Set the random seed:
-set.seed(seed)
-gen_for_python = function(n, a_alpha=a_alpha, b_alpha=b_alpha, a_logP=a_logP,
-                          b_logP=b_logP, a_t_d=a_t_d, b_t_d=b_t_d, a_rho=a_rho,
-                          b_rho=b_rho, nu_0=nu_0, ss_0=ss_0, plot_it, save_it) {
+gen_for_python = function(n, a_alpha, b_alpha, a_logP, b_logP, a_t_d, b_t_d, 
+                          a_rho, b_rho, nu_0, ss_0, seed, plot_it=FALSE, save_it=TRUE) {
   
-  hyperparameter_list <- list(a_alpha=a_alpha, b_alpha=b_alpha, a_logP=a_logP,
-         b_logP=b_logP, a_t_d=a_t_d, b_t_d=b_t_d,
-         a_rho=a_rho, b_rho=b_rho, nu_0=nu_0, ss_0=ss_0)
+  # Set the random seed:
+  set.seed(seed)
+  y <- full_sim(n=n,hyperparameters=list(a_alpha=a_alpha, b_alpha=b_alpha, a_logP=a_logP,
+                                         b_logP=b_logP, a_t_d=a_t_d, b_t_d=b_t_d, 
+                                         a_rho=a_rho, b_rho=b_rho, nu_0=nu_0, ss_0=ss_0))
   
-  y <- full_sim(n=n,hyperparameters=hyperparameter_list)
-  
+  #Filename is dependent on the seed. This is useful for writing multiple simulations to files. Just need to loop over
+  #different values of the seed to generate unique files.
   if (plot_it) {
     jpeg(file=paste("Simulated_Data_", seed, ".jpg", sep=""), width=1920, height=1080)
     plot(y$data$y, ylab="Depth", xlab="Index", pch=1)
     lines(1-y$data$q,col="red",lwd=2.0)
     dev.off()
-  } 
-  
-  if (save_it) {
-    write.table(y$data$y, file=paste("Data/y", ".csv", sep="") sep=',', row.names=NULL, col.names=NULL)
   }
   
+  if (save_it) {
+    write.table(y$data$y, file=paste("Data/y_", seed, ".csv", sep=""), sep=',', row.names=FALSE, col.names=FALSE)
+    write.table(unlist(y$parameters), file=paste("Data/pars_", seed, ".csv", sep=""), sep=',', row.names=FALSE, col.names=FALSE)
+  }
+  ifelse(save_it, return(NULL), return(y)) #If saving to file, don't return anything. Else, return the object.
+}
+
+for (s in seed:(seed+9)) { #Generate 10 datasets using the given hyperpars.
+  gen_for_python(n, a_alpha, b_alpha, a_logP, b_logP, a_t_d, b_t_d, a_rho, b_rho, nu_0, ss_0, seed=s, save_it=TRUE)
 }
