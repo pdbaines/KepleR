@@ -137,3 +137,4 @@ gen_for_python = function(n, a_alpha, b_alpha, a_logP, b_logP, a_t_d, b_t_d,
 for (s in seed:(seed+9)) { #Generate 10 datasets using the given hyperpars.
   gen_for_python(n, a_alpha, b_alpha, a_logP, b_logP, a_t_d, b_t_d, a_rho, b_rho, nu_0, ss_0, seed=s, save_it=TRUE)
 }
+

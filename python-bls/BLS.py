@@ -1,5 +1,6 @@
 import bls, math, glob
 import numpy as np
+import matplotlib.pyplot as plt
 import csv
 
 def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.log(20000),
@@ -32,6 +33,7 @@ def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.l
     fmin = 1 / max_period
     fmax = 1 / min_period
     df = (fmax - fmin) / nf
+
     #nb = 1500
     #qmi = 0.0005
     #qma = 0.005
@@ -48,12 +50,13 @@ def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.l
         print "Running EEBLS..."
 
     results = bls.eebls(time, flux, u, v, nf, fmin, df, nb, qmi, qma)
-
+    f = fmin + (np.arange(len(results[0])))*df
+    
     if verbose:
         print "Done. Results:"
         print results
 
-    return results
+    return results, 1.0/f
 
 #Get file list, take only simulated observation CSVs
 data_files = glob.glob("../Data/y_*.csv")
@@ -62,10 +65,15 @@ outfilestub = "../Results/out_"
 for data in data_files:
     foo = run_bls(file=data, verbose=True)
     datanum = data.split('_')[1].split('.')[0]
+    print "Running dataset number " + str(datanum)
+    if datanum == "5029888":
+      qlk4heqlk
     outfile = outfilestub + datanum + ".txt"
     ofile = open(outfile,"wb")
     ofile.write(str(foo[1]))
     ofile.close()
 
-
+plt.scatter(y=foo[0][0],x=foo[1])
+plt.plot()
+plt.show()
 
