@@ -52,7 +52,7 @@ def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.l
 
     results = bls.eebls(time, flux, u, v, nf, fmin, df, nb, qmi, qma)
     f = fmin + (np.arange(len(results[0])))*df
-    
+
     if verbose:
         print "Done. Results:"
         print results
@@ -69,8 +69,12 @@ bls_periods = np.empty(1)
 signals = np.empty(1)
 noises = np.empty(1)
 
-#for data in data_files:  # This one takes a long time. Better to prototype on small sets.
-for data in ['../Data/y_5030037.csv', '../Data/y_5030038.csv']:
+# hack
+todo = 100
+done = 0
+
+#for data in ['../Data/y_5030037.csv', '../Data/y_5030038.csv']:
+for data in data_files:  # This one takes a long time. Better to prototype on small sets.
     bls_results = run_bls(file=data, verbose=False)
     datanum = data.split('_')[1].split('.')[0]
     outfile = outfilestub + datanum + ".txt"
@@ -90,7 +94,10 @@ for data in ['../Data/y_5030037.csv', '../Data/y_5030038.csv']:
     true_periods = np.append(true_periods, true_period)  # Collect those, too
     signals = np.append(signals, signal)
     noises = np.append(noises, noise)
-
+    done = done+1
+    print "Finished dataset " + str(done)
+    if done == todo:
+        break
 
 true_periods = true_periods[1:]
 bls_periods = bls_periods[1:]
@@ -98,19 +105,20 @@ signals = signals[1:]
 noises = noises[1:]
 
 diffs = np.subtract(true_periods, bls_periods)
-SNR = np.divide(signals, noises)
+SNR = np.divide(signals, np.sqrt(noises))
 
 print diffs
 print SNR
-#
+
 ##Save files to avoid this computation later.
-#np.save("true_periods", true_periods)
-#np.save("bls_periods", bls_periods)
-#np.save("signals", signals)
-#np.save("noises", noises)
-#
-#plt.scatter(diffs, SNR)
-#plt.xlabel("Difference in Estimated Period and True Period")
-#plt.ylabel("Signal to Noise Ratio")
-#plt.title("Signal to Noise Ratio versus Difference in Period")
-#plt.savefig('SNR_vs_Diff.pdf')
+np.save("true_periods", true_periods)
+np.save("bls_periods", bls_periods)
+np.save("signals", signals)
+np.save("noises", noises)
+
+plt.scatter(SNR, diffs)
+plt.ylabel("Difference in Estimated Period and True Period")
+plt.xlabel("Signal to Noise Ratio")
+plt.title("Signal to Noise Ratio versus Difference in Period")
+plt.savefig('SNR_vs_Diff.pdf')
+

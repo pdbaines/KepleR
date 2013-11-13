@@ -4,6 +4,7 @@
 
 echo -e 'Removing the previous builds...\n\n\n'
 rm -rf ./build
+rm -rf bls/_*.so
 
 echo -e 'Setting up new build.\n\n\n'
 python setup.py build_ext --inplace
