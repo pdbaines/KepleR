@@ -134,6 +134,13 @@ gen_for_python = function(n, a_alpha, b_alpha, a_logP, b_logP, a_t_d, b_t_d,
   ifelse(save_it, return(NULL), return(y)) #If saving to file, don't return anything. Else, return the object.
 }
 
+<<<<<<< HEAD
 for (s in seed:(seed+999)) { #Generate 10 datasets using the given hyperpars.
   y = gen_for_python(n, a_alpha, b_alpha, a_logP, b_logP, a_t_d, b_t_d, a_rho, b_rho, nu_0, ss_0, seed=s, plot_it=FALSE, save_it=TRUE)
 }
+=======
+for (s in seed:(seed+9)) { #Generate 10 datasets using the given hyperpars.
+  gen_for_python(n, a_alpha, b_alpha, a_logP, b_logP, a_t_d, b_t_d, a_rho, b_rho, nu_0, ss_0, seed=s, save_it=TRUE)
+}
+
+>>>>>>> b47890c16c749a0376d053259408d186bb2caacd
