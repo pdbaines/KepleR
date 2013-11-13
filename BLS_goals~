@@ -1,0 +1,10 @@
+(Done) - Simulate datasets through R, export to Python
+(Done) - Get Python BLS working
+(Done) - Adjust tuning parameters
+
+Look on DFM github exosamsi/detrending/sandbox/Readme -- Dan's injected light curves
+Easier: Gal's detrended using median filter
+
+Nov6:
+Generate thousands of datasets
+Plot Signal-to-Noise against Difference in True Period to Estimated Period

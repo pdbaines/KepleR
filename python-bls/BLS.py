@@ -1,6 +1,8 @@
-import bls, math, glob
+import bls
+import math
+import glob
 import numpy as np
-import csv
+import matplotlib.pyplot as plt
 
 def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.log(20000),
             nb=1500, qmi=0.0005, qma=0.005, verbose=True):
@@ -55,17 +57,46 @@ def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.l
 
     return results
 
-#Get file list, take only simulated observation CSVs
+#Get file list, take simulated observation CSVs
 data_files = glob.glob("../Data/y_*.csv")
+#print data_files
 outfilestub = "../Results/out_"
 
-for data in data_files:
-    foo = run_bls(file=data, verbose=True)
+true_periods = np.empty(1)
+bls_periods = np.empty(1)
+signals = np.empty(1)
+noises = np.empty(1)
+
+for data in data_files:  # This one takes a long time. Better to prototype on small sets.
+#for data in ['../Data/y_5030037.csv', '../Data/y_5030038.csv', '../Data/y_5030039.csv', '../Data/y_5030040.csv']:
+    bls_results = run_bls(file=data, verbose=False)
     datanum = data.split('_')[1].split('.')[0]
     outfile = outfilestub + datanum + ".txt"
-    ofile = open(outfile,"wb")
-    ofile.write(str(foo[1]))
+    ofile = open(outfile, "wb")
+    ofile.write(str(bls_results[1]))
     ofile.close()
 
+    pars = np.genfromtxt("../Data/pars_"+str(datanum)+".csv", delimiter=",") # Get true parameters
+    signal = pars[0]  # Get true signal
+    noise = pars[5]/(1-math.pow(pars[4], 2))  # Get true noise, sigma^2 / (1-rho^2)
+    true_period = pars[1]  # Get true periods
+
+    bls_periods = np.append(bls_periods, bls_results[1])  # Collect all estimated periods into one array
+    true_periods = np.append(true_periods, true_period)  # Collect those, too
+    signals = np.append(signals, signal)
+    noises = np.append(noises, noise)
 
 
+true_periods = true_periods[1:]
+bls_periods = bls_periods[1:]
+signals = signals[1:]
+noises = noises[1:]
+
+diffs = true_periods - bls_periods
+SNR = signals/noises
+
+#plt.scatter(diffs, SNR)
+#plt.xlabel("Difference in Estimated Period and True Period")
+#plt.ylabel("Signal to Noise Ratio")
+#plt.title("Signal to Noise Ratio versus Difference in Period")
+#plt.savefig('SNR_vs_Diff.pdf')

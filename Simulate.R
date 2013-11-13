@@ -121,7 +121,7 @@ gen_for_python = function(n, a_alpha, b_alpha, a_logP, b_logP, a_t_d, b_t_d,
   #Filename is dependent on the seed. This is useful for writing multiple simulations to files. Just need to loop over
   #different values of the seed to generate unique files.
   if (plot_it) {
-    jpeg(file=paste("Simulated_Data_", seed, ".jpg", sep=""), width=1920, height=1080)
+    jpeg(file=paste("Plots/Simulated_Data_", seed, ".jpg", sep=""), width=640, height=480)
     plot(y$data$y, ylab="Depth", xlab="Index", pch=1)
     lines(1-y$data$q,col="red",lwd=2.0)
     dev.off()
@@ -134,6 +134,6 @@ gen_for_python = function(n, a_alpha, b_alpha, a_logP, b_logP, a_t_d, b_t_d,
   ifelse(save_it, return(NULL), return(y)) #If saving to file, don't return anything. Else, return the object.
 }
 
-for (s in seed:(seed+9)) { #Generate 10 datasets using the given hyperpars.
-  gen_for_python(n, a_alpha, b_alpha, a_logP, b_logP, a_t_d, b_t_d, a_rho, b_rho, nu_0, ss_0, seed=s, save_it=TRUE)
+for (s in seed:(seed+999)) { #Generate 10 datasets using the given hyperpars.
+  y = gen_for_python(n, a_alpha, b_alpha, a_logP, b_logP, a_t_d, b_t_d, a_rho, b_rho, nu_0, ss_0, seed=s, plot_it=FALSE, save_it=TRUE)
 }
