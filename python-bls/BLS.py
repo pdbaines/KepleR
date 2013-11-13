@@ -3,10 +3,6 @@ import math
 import glob
 import numpy as np
 import matplotlib.pyplot as plt
-<<<<<<< HEAD
-=======
-import csv
->>>>>>> b47890c16c749a0376d053259408d186bb2caacd
 
 def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.log(20000),
             nb=1500, qmi=0.0005, qma=0.005, verbose=True):
@@ -73,24 +69,24 @@ bls_periods = np.empty(1)
 signals = np.empty(1)
 noises = np.empty(1)
 
-for data in data_files:  # This one takes a long time. Better to prototype on small sets.
-#for data in ['../Data/y_5030037.csv', '../Data/y_5030038.csv', '../Data/y_5030039.csv', '../Data/y_5030040.csv']:
+#for data in data_files:  # This one takes a long time. Better to prototype on small sets.
+for data in ['../Data/y_5030037.csv', '../Data/y_5030038.csv']:
     bls_results = run_bls(file=data, verbose=False)
     datanum = data.split('_')[1].split('.')[0]
-    print "Running dataset number " + str(datanum)
-    if datanum == "5029888":
-      qlk4heqlk
     outfile = outfilestub + datanum + ".txt"
     ofile = open(outfile, "wb")
-    ofile.write(str(bls_results[1]))
+    ofile.write(str(bls_results[0][1]))
     ofile.close()
 
     pars = np.genfromtxt("../Data/pars_"+str(datanum)+".csv", delimiter=",") # Get true parameters
     signal = pars[0]  # Get true signal
     noise = pars[5]/(1-math.pow(pars[4], 2))  # Get true noise, sigma^2 / (1-rho^2)
+    #print "SD" + str(pars[5])
+    #print "1-rho2" + str((1-math.pow(pars[4], 2)))
+    #print noise
     true_period = pars[1]  # Get true periods
 
-    bls_periods = np.append(bls_periods, bls_results[1])  # Collect all estimated periods into one array
+    bls_periods = np.append(bls_periods, bls_results[0][1])  # Collect all estimated periods into one array
     true_periods = np.append(true_periods, true_period)  # Collect those, too
     signals = np.append(signals, signal)
     noises = np.append(noises, noise)
@@ -101,11 +97,20 @@ bls_periods = bls_periods[1:]
 signals = signals[1:]
 noises = noises[1:]
 
-diffs = true_periods - bls_periods
-SNR = signals/noises
+diffs = np.subtract(true_periods, bls_periods)
+SNR = np.divide(signals, noises)
 
-plt.scatter(diffs, SNR)
-plt.xlabel("Difference in Estimated Period and True Period")
-plt.ylabel("Signal to Noise Ratio")
-plt.title("Signal to Noise Ratio versus Difference in Period")
-plt.savefig('SNR_vs_Diff.pdf')
+print diffs
+print SNR
+#
+##Save files to avoid this computation later.
+#np.save("true_periods", true_periods)
+#np.save("bls_periods", bls_periods)
+#np.save("signals", signals)
+#np.save("noises", noises)
+#
+#plt.scatter(diffs, SNR)
+#plt.xlabel("Difference in Estimated Period and True Period")
+#plt.ylabel("Signal to Noise Ratio")
+#plt.title("Signal to Noise Ratio versus Difference in Period")
+#plt.savefig('SNR_vs_Diff.pdf')
