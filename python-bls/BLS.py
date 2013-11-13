@@ -85,7 +85,6 @@ for data in data_files:  # This one takes a long time. Better to prototype on sm
     ofile.write(str(bls_results[1]))
     ofile.close()
 
-<<<<<<< HEAD
     pars = np.genfromtxt("../Data/pars_"+str(datanum)+".csv", delimiter=",") # Get true parameters
     signal = pars[0]  # Get true signal
     noise = pars[5]/(1-math.pow(pars[4], 2))  # Get true noise, sigma^2 / (1-rho^2)
@@ -104,14 +103,9 @@ noises = noises[1:]
 
 diffs = true_periods - bls_periods
 SNR = signals/noises
-=======
-plt.scatter(y=foo[0][0],x=foo[1])
-plt.plot()
-plt.show()
->>>>>>> b47890c16c749a0376d053259408d186bb2caacd
 
-#plt.scatter(diffs, SNR)
-#plt.xlabel("Difference in Estimated Period and True Period")
-#plt.ylabel("Signal to Noise Ratio")
-#plt.title("Signal to Noise Ratio versus Difference in Period")
-#plt.savefig('SNR_vs_Diff.pdf')
+plt.scatter(diffs, SNR)
+plt.xlabel("Difference in Estimated Period and True Period")
+plt.ylabel("Signal to Noise Ratio")
+plt.title("Signal to Noise Ratio versus Difference in Period")
+plt.savefig('SNR_vs_Diff.pdf')
