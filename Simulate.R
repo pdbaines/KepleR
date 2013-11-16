@@ -106,7 +106,7 @@ b_rho <- 1.0
 nu_0 <- 1000.0
 ss_0 <- 0.0001
 
-n_datasets <- 200
+n_datasets <- 10
 
 # Random seed:
 seed <- 5029879
@@ -137,5 +137,5 @@ gen_for_python = function(n, a_alpha, b_alpha, a_logP, b_logP, a_t_d, b_t_d,
 }
 
 for (s in seed:(seed+n_datasets-1)) { #Generate 10 datasets using the given hyperpars.
-  y = gen_for_python(n, a_alpha, b_alpha, a_logP, b_logP, a_t_d, b_t_d, a_rho, b_rho, nu_0, ss_0, seed=s, plot_it=FALSE, save_it=TRUE)
+  y = gen_for_python(n, a_alpha, b_alpha, a_logP, b_logP, a_t_d, b_t_d, a_rho, b_rho, nu_0, ss_0, seed=s, plot_it=TRUE, save_it=TRUE)
 }

@@ -3,12 +3,12 @@ import math
 import glob
 import numpy as np
 
-def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.log(20000),
+def run_bls(file, nf=10000, a_logP = math.log(8000), b_logP = math.log(20000),
             nb=1500, qmi=0.0005, qma=0.005, verbose=True):
     if verbose:
         print "Reading data..."
 
-    flux = np.genfromtxt(file, delimiter=",")
+    flux = np.loadtxt(file, delimiter=",")
 
     if verbose:
         print "Setting up arrays..."
@@ -23,20 +23,13 @@ def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.l
 
     #Most of this are set through the function call, so I commented this out. For use later, perhaps.
     # Prior for period:
-    #a_logP = math.log(8000) # 8000
-    #b_logP = math.log(20000) # 37000
     min_period = math.exp(a_logP)
     max_period = math.exp(b_logP)
 
     ### Email Specs ####
-    #nf = 10000
     fmin = 1 / max_period
     fmax = 1 / min_period
     df = (fmax - fmin) / nf
-
-    #nb = 1500
-    #qmi = 0.0005
-    #qma = 0.005
 
     if verbose:
         print "EEBLS parameters:"
@@ -56,52 +49,71 @@ def run_bls(file='./obs.csv', nf=10000, a_logP = math.log(8000), b_logP = math.l
         print "Done. Results:"
         print results
 
-    return results, 1.0/f
+    return results
 
-#Get file list, take simulated observation CSVs
-data_files = glob.glob("../Data/y_*.csv")
-#print data_files
-outfilestub = "../Results/out_"
 
-true_periods = np.empty(1)
-bls_periods = np.empty(1)
-signals = np.empty(1)
-noises = np.empty(1)
+def validate_bls(data_files=glob.glob("../Data/y_*.csv"), save=True, todo=None):
+    if todo is None:
+        k = len(data_files)  # If we have a to do of nothing, process the whole dataset.
+    else:
+        k = todo  # Otherwise, set it to whatever we wanted.
+    done = 0  # Number of datasets analyzed so far.
 
-# hack
-todo = 1000
-done = 0
+    #Initialize estimated and true arrays.
+    bls_period = bls_power = bls_depth = bls_q = bls_in1 = bls_in2 = np.empty(k)
+    true_period = true_signal = true_td = true_t0 = true_rho = true_sigma2 = np.empty(k)
 
-#for data in ['../Data/y_5030037.csv', '../Data/y_5030038.csv']:
-for data in data_files:  # This one takes a long time. Better to prototype on small sets.
-    bls_results = run_bls(file=data, verbose=False)
-    datanum = data.split('_')[1].split('.')[0]
-    outfile = outfilestub + datanum + ".txt"
-    ofile = open(outfile, "wb")
-    ofile.write(str(bls_results[0][1]))
-    ofile.close()
+    #Using an integer iterator with in-place numpy arrays drastically increases speed, at the cost of simplicity.
+    for i, data in enumerate(data_files):
+        datanum = data.split('_')[1].split('.')[0]  # Determine which dataset we're on
+        best_period, best_power, depth, q, in1, in2 = run_bls(file=data, verbose=False)[1:]
 
-    pars = np.genfromtxt("../Data/pars_"+str(datanum)+".csv", delimiter=",") # Get true parameters
-    signal = pars[0]  # Get true signal
-    noise = pars[5]/(1-math.pow(pars[4], 2))  # Get true noise, sigma^2 / (1-rho^2)
-    true_period = pars[1]  # Get true periods
+        #Collect BLS estimates for later graphing.
+        bls_period[i] = best_period
+        bls_power[i] = best_power
+        bls_depth[i] = depth
+        bls_q[i] = q
+        bls_in1[i] = in1
+        bls_in2[i] = in2
 
-    bls_periods = np.append(bls_periods, bls_results[0][1])  # Collect all estimated periods into one array
-    true_periods = np.append(true_periods, true_period)  # Collect those, too
-    signals = np.append(signals, signal)
-    noises = np.append(noises, noise)
-    done = done+1
-    print "Finished dataset " + str(done)
-    if done == todo:
-        break
+        #Import and collect true values for later graphing.
+        signal, period, td, t0, rho, sigma2 = np.loadtxt("../Data/pars_"+str(datanum)+".csv", delimiter=",")
+        true_signal[i] = signal  # Append true signal to array
+        true_period[i] = period  # Collect true periods in on array
+        true_td[i] = td
+        true_t0[i] = t0
+        true_rho[i] = rho
+        true_sigma2[i] = sigma2
 
-true_periods = true_periods[1:]
-bls_periods = bls_periods[1:]
-signals = signals[1:]
-noises = noises[1:]
+        t0_guess = 8000 + (6*in1/5)
+        print "Index of First Transit: " + str(in1)
+        print "t0 guess: " + str(t0_guess)
+        print "True t0: " + str(t0)
+        print "Relative Error (%): " + str(100*(t0 - t0_guess)/t0)
+        print "SNR: " + str(signal / (math.sqrt(sigma2/(1-math.pow(rho, 2)))))
 
-##Save files to avoid this computation later.
-np.save("true_periods", true_periods)
-np.save("bls_periods", bls_periods)
-np.save("signals", signals)
-np.save("noises", noises)
+        done += 1
+        print "Finished dataset " + str(done)
+
+        if done == todo:
+            break
+
+    true_noise = np.divide(true_sigma2, np.subtract(1, np.power(true_rho, 2)))
+    if save:
+        #Save estimate and true arrays to avoid doing this computation every time.
+        np.save("../Results/true_period.npy", true_period)
+        np.save("../Results/true_signal.npy", true_signal)
+        np.save("../Results/true_noise.npy", true_noise)
+        np.save("../Results/true_td.npy", true_td)
+        np.save("../Results/true_t0.npy", true_t0)
+        np.save("../Results/true_rho.npy", true_rho)
+        np.save("../Results/true_sigma2.npy", true_sigma2)
+        np.save("../Results/bls_period.npy", bls_period)
+        np.save("../Results/bls_power.npy", bls_power)
+        np.save("../Results/bls_depth.npy", bls_depth)
+        np.save("../Results/bls_q.npy", bls_q)
+        np.save("../Results/bls_in1.npy", bls_in1)
+        np.save("../Results/bls_in2.npy", bls_in2)
+    return None
+
+validate_bls()
