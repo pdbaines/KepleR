@@ -52,16 +52,16 @@ def run_bls(file, nf=10000, a_logP = math.log(8000), b_logP = math.log(20000),
     return results
 
 
-def validate_bls(data_files=glob.glob("../Data/y_*.csv"), save=True, todo=None):
-    if todo is None:
-        k = len(data_files)  # If we have a to do of nothing, process the whole dataset.
+def validate_bls(data_files=glob.glob("../Data/y_*.csv"), save=True, times=None):
+    if times is None:
+        k = len(data_files)  # If we have a times of nothing, process the whole dataset.
     else:
-        k = todo  # Otherwise, set it to whatever we wanted.
+        k = times  # Otherwise, set it to whatever we wanted.
     done = 0  # Number of datasets analyzed so far.
 
     #Initialize estimated and true arrays.
-    bls_period = bls_power = bls_depth = bls_q = bls_in1 = bls_in2 = np.empty(k)
-    true_period = true_signal = true_td = true_t0 = true_rho = true_sigma2 = np.empty(k)
+    bls_period = bls_power = bls_depth = bls_q = bls_in1 = bls_in2 = np.zeros(k)
+    true_period = true_signal = true_td = true_t0 = true_rho = true_sigma2 = np.zeros(k)
 
     #Using an integer iterator with in-place numpy arrays drastically increases speed, at the cost of simplicity.
     for i, data in enumerate(data_files):
@@ -85,17 +85,17 @@ def validate_bls(data_files=glob.glob("../Data/y_*.csv"), save=True, todo=None):
         true_rho[i] = rho
         true_sigma2[i] = sigma2
 
-        t0_guess = 8000 + (6*in1/5)
-        print "Index of First Transit: " + str(in1)
-        print "t0 guess: " + str(t0_guess)
-        print "True t0: " + str(t0)
-        print "Relative Error (%): " + str(100*(t0 - t0_guess)/t0)
-        print "SNR: " + str(signal / (math.sqrt(sigma2/(1-math.pow(rho, 2)))))
+        #t0_guess = 8000 + (6*in1/5)
+        #print "Index of First Transit: " + str(in1)
+        #print "t0 guess: " + str(t0_guess)
+        #print "True t0: " + str(t0)
+        #print "Relative Error (%): " + str(100*(t0 - t0_guess)/t0)
+        #print "SNR: " + str(signal / (math.sqrt(sigma2/(1-math.pow(rho, 2)))))
 
         done += 1
         print "Finished dataset " + str(done)
 
-        if done == todo:
+        if done == times:
             break
 
     true_noise = np.divide(true_sigma2, np.subtract(1, np.power(true_rho, 2)))
