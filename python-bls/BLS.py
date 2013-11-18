@@ -61,8 +61,9 @@ def validate_bls(data_files=glob.glob("../Data/y_*.csv"), save=True, times=None)
 
     #Initialize estimated and true arrays.
     bls_period = bls_power = bls_depth = bls_q = bls_in1 = bls_in2 = np.zeros(k)
-    true_period = true_signal = true_td = true_t0 = true_rho = true_sigma2 = np.zeros(k)
-
+    true_period = true_signal = true_td = true_t0 = true_sigma2 = true_rho = true_snr = np.zeros(k)
+    print (data_files.sort())
+    print (data_files)
     #Using an integer iterator with in-place numpy arrays drastically increases speed, at the cost of simplicity.
     for i, data in enumerate(data_files):
         datanum = data.split('_')[1].split('.')[0]  # Determine which dataset we're on
@@ -84,13 +85,15 @@ def validate_bls(data_files=glob.glob("../Data/y_*.csv"), save=True, times=None)
         true_t0[i] = t0
         true_rho[i] = rho
         true_sigma2[i] = sigma2
+        true_snr[i] = signal / (math.sqrt(sigma2/(1-math.pow(rho, 2))))
 
         #t0_guess = 8000 + (6*in1/5)
         #print "Index of First Transit: " + str(in1)
         #print "t0 guess: " + str(t0_guess)
         #print "True t0: " + str(t0)
         #print "Relative Error (%): " + str(100*(t0 - t0_guess)/t0)
-        #print "SNR: " + str(signal / (math.sqrt(sigma2/(1-math.pow(rho, 2)))))
+        print "dataset:" + datanum
+        print "SNR: " + str(signal / (math.sqrt(sigma2/(1-math.pow(rho, 2)))))
 
         done += 1
         print "Finished dataset " + str(done)
@@ -98,7 +101,7 @@ def validate_bls(data_files=glob.glob("../Data/y_*.csv"), save=True, times=None)
         if done == times:
             break
 
-    true_noise = np.divide(true_sigma2, np.subtract(1, np.power(true_rho, 2)))
+    print true_snr
     if save:
         #Save estimate and true arrays to avoid doing this computation every time.
         np.save("../Results/true_period.npy", true_period)
@@ -108,6 +111,8 @@ def validate_bls(data_files=glob.glob("../Data/y_*.csv"), save=True, times=None)
         np.save("../Results/true_t0.npy", true_t0)
         np.save("../Results/true_rho.npy", true_rho)
         np.save("../Results/true_sigma2.npy", true_sigma2)
+        np.save("../Results/true_snr.npy", true_snr)
+
         np.save("../Results/bls_period.npy", bls_period)
         np.save("../Results/bls_power.npy", bls_power)
         np.save("../Results/bls_depth.npy", bls_depth)
