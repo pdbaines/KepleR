@@ -1,6 +1,7 @@
 # History files and Pycharm settings
 .Rhistory
 .idea
+.DS_Store
 
 # Example code in package build process
 *-Ex.R
