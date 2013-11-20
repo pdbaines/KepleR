@@ -1,5 +1,9 @@
-Compare the other estimates from BLS i.e., the depth of the transit (alpha), the transit duration (t_d), the time until first transit (t_0). Some of these should come directly from the BLS output (e.g., alpha should roughly correspond to "depth" in the BLS output), others need to be derived (e.g., t_d can be derived from qtran*bper in the BLS output, and t_0 will probably be derived from in1 and in2 in the BLS output). We'll be using BLS to motivate a proposal distribution for all four parameters simultaneously, so it needs to do a good job for all.
+AR(1) Data:
+-Get updated plots
+-True versus Estimate: All four (for high SNR)
+-Fix laptop Python stack to actually run code (numpy, matplotlib, etc)
 
-https://github.com/hpparvi/PyBLS/blob/master/src/bls.f90
-
-Can you try and extract the estimates for these quantities from the BLS output and make similar plots to compare to the truth for each of the other parameters? Then we'll run the same thing for simulated data from the wavelet-based model.
+Wavelets:
+-Simulate datasets
+-Add Metropolis Hastings step for Transit Parameters (all else implemented)
+-Read PDFs about Multiplicative Wavelet Models from Paul

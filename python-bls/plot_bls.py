@@ -15,7 +15,7 @@ bls_td = np.multiply(bls_q, bls_period)
 
 true_t0 = np.load("../Results/true_t0.npy")
 bls_in1 = np.load("../Results/bls_in1.npy")
-bls_t0 = 8000 + (bls_in1 * 1.2)
+bls_t0 = bls_period * (bls_in1 / 1500)
 
 true_snr = np.load("../Results/true_snr.npy")
 
@@ -51,16 +51,16 @@ def plot_var(variable, snr=true_snr):
     plt.xlabel("Signal to Noise Ratio")
 
     subplot(222)
-    plt.scatter(snr[snr > 2], rel_diff[snr > 2])
+    plt.scatter(snr[snr > 3], rel_diff[snr > 3])
     plt.ylabel("Relative Error in " + variable.title() + " (%)")
     plt.xlabel("Signal to Noise Ratio > 2")
-    plt.xlim([2.0, 8.0])
+    plt.xlim([3.0, 8.0])
 
     ax2 = plt.subplot2grid((2, 2), (1, 0), colspan=2)
-    plt.scatter(snr[snr < 2], rel_diff[snr < 2])
+    plt.scatter(snr[snr < 3], rel_diff[snr < 3])
     plt.ylabel("Relative Error in " + variable.title() + " (%)")
-    plt.xlabel("Signal to Noise Ratio < 2")
-    plt.xlim([0.0, 2.0])
+    plt.xlabel("Signal to Noise Ratio < 3")
+    plt.xlim([0.0, 3.0])
     plt.tight_layout()
     plt.savefig('../Results/Graphs/SNR_vs_RelDiff' + variable.title() + '.pdf')
     return 0

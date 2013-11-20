@@ -129,4 +129,4 @@ def validate_bls(data_files=sorted(glob.glob("../Data/y_*.csv")), save=True, tim
 
     return None
 
-validate_bls()
+validate_bls(times=10)
