@@ -96,14 +96,6 @@ def validate_bls(data_files=sorted(glob.glob("../Data/y_*.csv")), save=True, tim
         true_td[i] = td
         true_t0[i] = t0
 
-        #t0_guess = 8000 + (6*in1/5)
-        #print "Index of First Transit: " + str(in1)
-        #print "t0 guess: " + str(t0_guess)
-        #print "True t0: " + str(t0)
-        #print "Relative Error (%): " + str(100*(t0 - t0_guess)/t0)
-        #print "dataset:" + datanum
-        #print "SNR: " + str(true_snr[i])
-
         done += 1
         print "Finished dataset " + str(done)
 
@@ -129,4 +121,4 @@ def validate_bls(data_files=sorted(glob.glob("../Data/y_*.csv")), save=True, tim
 
     return None
 
-validate_bls(times=10)
+validate_bls()
